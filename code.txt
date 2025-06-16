@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventory Table</title>
+</head>
+<body>
+    <h2>Inventory Table</h2>
+    <form action="insert.php" method="POST">
+        <table border="1" cellpadding="10">
+            <tr>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Date</th>
+            </tr>
+            <!-- Repeat 5 rows -->
+            <?php for ($i = 0; $i < 5; $i++): ?>
+            <tr>
+                <td><input type="text" name="item_name[]" required></td>
+                <td><input type="number" name="quantity[]" required></td>
+                <td><input type="date" name="date[]" required></td>
+            </tr>
+            <?php endfor; ?>
+        </table>
+        <br>
+        <input type="submit" value="Add Items">
+    </form>
+</body>
+</html>
+
+
+
+
+
+
+Step 2: PHP Code to Handle Multiple Rows (insert.php)
+php
+Copy
+Edit
+<?php
+// Database config
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "inventory_db";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Loop through form arrays
+$item_names = $_POST['item_name'];
+$quantities = $_POST['quantity'];
+$dates = $_POST['date'];
+
+for ($i = 0; $i < count($item_names); $i++) {
+    $item_name = $conn->real_escape_string($item_names[$i]);
+    $quantity = (int)$quantities[$i];
+    $date = $conn->real_escape_string($dates[$i]);
+
+    // Only insert if all fields are filled
+    if (!empty($item_name) && !empty($quantity) && !empty($date)) {
+        $sql = "INSERT INTO inventory (item_name, quantity, date) 
+                VALUES ('$item_name', '$quantity', '$date')";
+        $conn->query($sql);
+    }
+}
+
+$conn->close();
+
+echo "Items inserted successfully!";
+echo "<br><a href='index.html'>Go Back</a>";
+?>
+✅ Result:
+After filling all 5 rows and clicking "Add Items", all rows will be saved into the database.
+
+
+
+
+
+-- Step 1: Create the Database
+CREATE DATABASE IF NOT EXISTS inventory_db;
+
+-- Step 2: Use the Database
+USE inventory_db;
+
+-- Step 3: Create the Inventory Table
+CREATE TABLE IF NOT EXISTS inventory (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_name VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL,
+    date DATE NOT NULL
+);
+
+✅ Explanation:
+Column	Type	Description
+id	INT (PK)	Unique identifier (auto-increment)
+item_name	VARCHAR(255)	Name of the item
+quantity	INT	Quantity of the item
+date	DATE	Date of entry
+
+✅ How to Run the SQL:
+Open phpMyAdmin (if you’re using XAMPP, WAMP, etc.) or use a MariaDB client.
+
+Run the above SQL commands sequentially to:
+
+Create the database inventory_db
+
+Create the inventory table
+
+✅ Quick Recap of the Full Flow:
+✔️ Frontend: HTML form with 5 rows using array inputs (item_name[], quantity[], date[])
+
+✔️ Backend: PHP script loops through all rows and inserts each into the MariaDB table.
+
+✔️ Database: MariaDB with inventory table ready to store multiple entries per form submission.
+
+If you want, I can also:
+
+Show you how to display the data in a table on another page.
+
+Add JavaScript to let you dynamically add or remove rows.
+
+Would you like that? 😊
+
